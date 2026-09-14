@@ -101,6 +101,8 @@ class Object:
         )
 
     def __eq__(self, other: object) -> bool:
+        # Comparing attribute values alone makes an attribute-less type equal to anything,
+        #  `None` and `42` included; `NotImplemented` leaves the verdict to the other operand.
         if type(other) is not type(self):
             return NotImplemented
 
