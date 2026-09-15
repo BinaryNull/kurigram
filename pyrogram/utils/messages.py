@@ -143,7 +143,7 @@ async def parse_messages(
     return types.List(parsed_messages)
 
 
-async def parse_deleted_messages(client, update, users, chats) -> list[types.Message]:
+async def parse_deleted_messages(client, update, users, chats) -> types.DeletedMessages:
     is_ephemeral = isinstance(update, raw.types.UpdateDeleteEphemeralMessages)
 
     messages = update.ids if is_ephemeral else update.messages
@@ -177,7 +177,7 @@ async def parse_deleted_messages(client, update, users, chats) -> list[types.Mes
         for message in messages
     ]
 
-    return types.List(parsed_messages)
+    return types.DeletedMessages(parsed_messages)
 
 
 async def get_reply_to(

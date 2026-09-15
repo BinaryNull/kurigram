@@ -42,6 +42,7 @@ from .community_chat_removed import CommunityChatRemoved
 from .contact import Contact
 from .contact_registered import ContactRegistered
 from .craft_gift_result import CraftGiftResult, CraftGiftResultFail, CraftGiftResultSuccess
+from .deleted_messages import DeletedMessages
 from .dice import Dice
 from .direct_message_price_changed import DirectMessagePriceChanged
 from .direct_messages_topic import DirectMessagesTopic
@@ -251,6 +252,7 @@ __all__ = [
     "CraftGiftResult",
     "CraftGiftResultFail",
     "CraftGiftResultSuccess",
+    "DeletedMessages",
     "Dice",
     "DirectMessagePriceChanged",
     "DirectMessagesTopic",

@@ -750,6 +750,7 @@ def pyrogram_api():
         messages_media="""
         Messages & Media
             BusinessMessage
+            DeletedMessages
             Message
             MessageEntity
             MessageOriginChannel

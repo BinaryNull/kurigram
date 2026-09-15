@@ -29,7 +29,7 @@ from .handler import Handler
 if TYPE_CHECKING:
     import pyrogram
 
-DeletedBusinessMessagesCallbackType = Callable[["pyrogram.Client", list[types.Message]], Any]
+DeletedBusinessMessagesCallbackType = Callable[["pyrogram.Client", types.DeletedMessages], Any]
 
 
 class DeletedBusinessMessagesHandler(Handler[DeletedBusinessMessagesCallbackType]):
@@ -53,8 +53,8 @@ class DeletedBusinessMessagesHandler(Handler[DeletedBusinessMessagesCallbackType
         client (:obj:`~pyrogram.Client`):
             The Client itself, useful when you want to call other API methods inside the message handler.
 
-        messages (List of :obj:`~pyrogram.types.Message`):
-            The deleted messages, as list.
+        messages (:obj:`~pyrogram.types.DeletedMessages`):
+            The deleted messages, as a list that can also stop or continue propagation.
     """
 
     def __init__(
@@ -64,7 +64,7 @@ class DeletedBusinessMessagesHandler(Handler[DeletedBusinessMessagesCallbackType
     ) -> None:
         super().__init__(callback, filters)
 
-    async def check(self, client: pyrogram.Client, messages: list[types.Message]) -> bool:
+    async def check(self, client: pyrogram.Client, messages: types.DeletedMessages) -> bool:
         # Every message should be checked, if at least one matches the filter True is returned
         # otherwise, or if the list is empty, False is returned
         for message in messages:

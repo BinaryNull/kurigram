@@ -18,20 +18,16 @@
 
 from __future__ import annotations as _annotations
 
-from .object import Object
+from ..list import List
+from ..update import Update
 
 
-class List(list):
-    __slots__ = []
+class DeletedMessages(List, Update):
+    """The batch of messages a single deletion event removed.
 
-    def __str__(self):
-        # noinspection PyCallByClass
-        return Object.__str__(self)
-
-    def __repr__(self) -> str:
-        # `Object.__repr__` reads `__dict__`, which only an `Object` has, so it raised
-        #  `AttributeError` on a list of ids or of nested `List`s. Every `Object` inherits
-        #  that same `__repr__` and none overrides it, so `repr` reaches it anyway.
-        return (
-            f"pyrogram.types.{self.__class__.__name__}([{','.join(repr(item) for item in self)}])"
-        )
+    A ``list`` of :obj:`~pyrogram.types.Message`: iteration, indexing, slicing and
+    ``len()`` work as on a plain list, so a callback written against one keeps working
+    unchanged. Being an update as well, it carries ``stop_propagation()`` and
+    ``continue_propagation()``, so a deleted-messages callback can control the handler
+    chain the way every other callback can.
+    """

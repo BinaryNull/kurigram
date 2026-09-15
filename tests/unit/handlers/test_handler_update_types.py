@@ -74,12 +74,7 @@ def name_of(annotation: type) -> str:
 
 
 def handed_to(handler: type[handlers.Handler]) -> str | None:
-    """The type the callback of `handler` is handed, or `None` when it is handed no update.
-
-    `list[X]` reads as `X`: the two deleted-message handlers are given the whole batch at
-    once. The element is what a sender filter would read, and the list carries neither that
-    nor `stop_propagation()`: a separate shape, and a separate decision.
-    """
+    """The type the callback of `handler` is handed, or `None` when it is handed no update."""
     # Every module carries `from __future__ import annotations`, so the signature is a set
     #  of strings until something evaluates them. A handler module imports `types` under
     #  `TYPE_CHECKING` only, so its own globals cannot resolve that name: hand it in.
@@ -98,7 +93,7 @@ def handed_to(handler: type[handlers.Handler]) -> str | None:
 
     update = arguments[0][1]
 
-    return name_of(typing.get_args(update)[0] if typing.get_origin(update) is list else update)
+    return name_of(update)
 
 
 def documented_by(handler: type[handlers.Handler]) -> set[str]:
@@ -165,7 +160,7 @@ def test_the_sweep_reads_the_handlers_it_claims_to() -> None:
 
     assert len(handed) > 20
     assert handed["PurchasedPaidMediaHandler"] == "PurchasedPaidMedia"
-    assert handed["DeletedMessagesHandler"] == "Message"
+    assert handed["DeletedMessagesHandler"] == "DeletedMessages"
     assert handed["UserStatusHandler"] == "User"
 
 
