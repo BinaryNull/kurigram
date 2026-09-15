@@ -20,9 +20,9 @@
 
 `pyrogram.sync` wraps every client method and every bound method of every type while
 `import pyrogram` is still running, so the loop cannot be resolved there. Resolving it from
-a process-wide record instead answers for whichever client asked first, so a second client
-started on a loop of its own is handed the first one's and dies with
-`RuntimeError: ... got Future ... attached to a different loop`.
+a process-wide record instead answers for whichever client asked first, and hands an async
+generator to the caller's loop while its coroutine sibling goes to the client's. Both end
+in `RuntimeError: ... got Future ... attached to a different loop`.
 """
 
 from __future__ import annotations as _annotations
@@ -68,6 +68,10 @@ class Api:
     async def running_loop(self) -> asyncio.AbstractEventLoop:
         return asyncio.get_running_loop()
 
+    async def running_loops(self, count: int) -> AsyncGenerator[asyncio.AbstractEventLoop]:
+        for _ in range(count):
+            yield asyncio.get_running_loop()
+
     # `shout` and `spell` reach their own loop the way `Session.send` does
     #  (`pyrogram/session/session.py:349`), so running them anywhere else raises.
     async def shout(self, text: str) -> str:
@@ -94,6 +98,7 @@ class Bound:
 
 # The library wraps its methods on the class, at import, and so does this.
 async_to_sync(Api, "running_loop")
+async_to_sync(Api, "running_loops")
 async_to_sync(Api, "shout")
 async_to_sync(Api, "spell")
 
@@ -272,6 +277,30 @@ async def test_a_call_made_from_another_loop_runs_on_the_client_loop(
 
     assert await api.running_loop() is client_loop
     assert await api.shout("hello") == "HELLO"
+
+
+async def test_an_async_generator_made_from_another_loop_runs_on_the_client_loop_too(
+    loop_in_another_thread: LoopInAnotherThread,
+) -> None:
+    client_loop = loop_in_another_thread(name="ClientLoop")
+    api = Api(client_loop)
+
+    assert [loop async for loop in api.running_loops(2)] == [client_loop, client_loop]
+    assert [letter async for letter in api.spell("ab")] == ["A", "B"]
+
+
+async def test_closing_an_async_generator_made_from_another_loop_finishes_it(
+    loop_in_another_thread: LoopInAnotherThread,
+) -> None:
+    client_loop = loop_in_another_thread(name="ClientLoop")
+    letters = Api(client_loop).spell("abc")
+
+    assert await anext(letters) == "A"
+
+    await letters.aclose()
+
+    with pytest.raises(StopAsyncIteration):
+        await anext(letters)
 
 
 async def test_a_call_from_another_loop_to_a_client_loop_nothing_drives_says_so(

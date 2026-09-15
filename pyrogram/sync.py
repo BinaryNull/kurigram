@@ -21,12 +21,32 @@ from __future__ import annotations as _annotations
 import asyncio
 import functools
 import inspect
-from collections.abc import AsyncIterator, Generator
+from collections.abc import AsyncIterator, Coroutine, Generator
 from typing import Any
 
 from pyrogram import types, utils
 from pyrogram.methods import Methods
 from pyrogram.methods.utilities import idle as idle_module, compose as compose_module
+
+
+class _BridgedAsyncGenerator:
+    """Iterate an async generator on the loop it belongs to, for a caller inside another one."""
+
+    def __init__(self, agen: AsyncIterator[Any], *, loop: asyncio.AbstractEventLoop) -> None:
+        self._agen = agen
+        self._loop = loop
+
+    def __aiter__(self) -> _BridgedAsyncGenerator:
+        return self
+
+    async def __anext__(self) -> Any:
+        return await self._on_the_target_loop(self._agen.__anext__())
+
+    async def aclose(self) -> None:
+        await self._on_the_target_loop(self._agen.aclose())
+
+    async def _on_the_target_loop(self, coroutine: Coroutine[Any, Any, Any]) -> Any:
+        return await asyncio.wrap_future(asyncio.run_coroutine_threadsafe(coroutine, self._loop))
 
 
 def _bridge_loop(args: tuple[Any, ...]) -> asyncio.AbstractEventLoop:
@@ -95,7 +115,7 @@ def async_to_sync(obj, name):
 
         if inspect.isasyncgen(coroutine):
             if caller_loop is not None:
-                return coroutine
+                return _BridgedAsyncGenerator(coroutine, loop=target_loop)
 
             return async_to_sync_gen(coroutine, loop=target_loop)
 
