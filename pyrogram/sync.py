@@ -57,7 +57,10 @@ def _bridge_loop(args: tuple[Any, ...]) -> asyncio.AbstractEventLoop:
     client = getattr(owner, "_client", owner)
     loop = getattr(client, "_loop", None)
 
-    if loop is not None:
+    # `asyncio.run()` closes the loop it made, and the client goes on pointing at it.
+    #  Sending to a closed one raises `RuntimeError: Event loop is closed` in place of
+    #  whatever the call itself would have raised.
+    if loop is not None and not loop.is_closed():
         return loop
 
     return utils.get_event_loop()

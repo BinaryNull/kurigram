@@ -236,6 +236,19 @@ def test_the_bridge_takes_its_loop_from_the_object_the_call_is_made_on(
     assert _bridge_loop(()) is sync_only_loop
 
 
+def test_the_bridge_passes_over_a_loop_that_has_been_closed(
+    sync_only_loop: asyncio.AbstractEventLoop,
+) -> None:
+    """What `asyncio.run()` leaves behind: the loop it drove the client on, now closed."""
+    spent = asyncio.new_event_loop()
+    spent.close()
+
+    api = Api(spent)
+
+    assert _bridge_loop((api,)) is sync_only_loop
+    assert api.running_loop() is sync_only_loop
+
+
 async def test_a_call_made_inside_the_client_loop_is_awaited_by_the_caller() -> None:
     api = Api(asyncio.get_running_loop())
 
