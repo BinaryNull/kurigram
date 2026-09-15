@@ -21,7 +21,6 @@ from __future__ import annotations as _annotations
 import pytest
 
 from pyrogram import raw
-from pyrogram.errors import PeerIdInvalid
 from pyrogram.methods.users.get_users import GetUsers
 
 
@@ -48,14 +47,10 @@ def a_user(user_id: int) -> raw.types.User:
 
 
 @pytest.mark.asyncio
-async def test_a_single_identifier_that_is_no_user_raises() -> None:
+async def test_a_single_identifier_that_is_no_user_gives_nothing_back() -> None:
     # Telegram answers with an empty vector for an id that belongs to a channel, a chat or a
-    #  peer this account cannot see. There is no user to hand back, so the question has no
-    #  answer and the caller gets the error at the call site instead of a `None` to carry.
-    with pytest.raises(PeerIdInvalid) as raised:
-        await Answerer([]).get_users("a_channel_username")
-
-    assert raised.value.value == "a_channel_username"
+    #  peer this account cannot see. Indexing into it raised `IndexError` out of the method body.
+    assert await Answerer([]).get_users("a_channel_username") is None
 
 
 @pytest.mark.asyncio
@@ -80,20 +75,17 @@ async def test_a_list_keeps_only_the_users_telegram_answered_with() -> None:
 
 
 @pytest.mark.asyncio
-async def test_a_deleted_account_raises() -> None:
-    # `userEmpty` is what the server sends for an account that no longer exists. It arrives
-    #  inside a vector that is not empty, so this is the second way the single-identifier form
-    #  used to answer `None`: `User._parse()` turns the entry itself into one.
-    with pytest.raises(PeerIdInvalid) as raised:
-        await Answerer([raw.types.UserEmpty(id=42)]).get_users(42)
-
-    assert raised.value.value == 42
+async def test_a_deleted_account_arrives_as_nothing() -> None:
+    # `userEmpty` is what the server sends for an account that no longer exists; `User._parse()`
+    #  turns it into `None`, and that is what the single-identifier path has always returned.
+    assert await Answerer([raw.types.UserEmpty(id=42)]).get_users(42) is None
 
 
 @pytest.mark.asyncio
 async def test_a_list_leaves_out_the_accounts_that_no_longer_exist() -> None:
-    # A `userEmpty` in the middle of the vector used to become a `None` element, which is the
-    #  same defect one container down: the list holds the users that exist and nothing else.
+    # A `userEmpty` in the middle of the vector used to become a `None` element, which is a hole
+    #  no caller can iterate past. The identifiers Telegram omits entirely are already absent
+    #  from the list, so dropping these restores that invariant rather than inventing a second.
     users = await Answerer([a_user(1), raw.types.UserEmpty(id=2), a_user(3)]).get_users([1, 2, 3])
 
     assert [user.id for user in users] == [1, 3]
