@@ -489,7 +489,10 @@ async def test_a_failed_background_task_nothing_recorded_is_reported_at_error(
     assert [(record.levelno, record.getMessage()) for record in _carrier_records(caplog)] == [
         (
             logging.ERROR,
-            "WEB proxy: background task failed with nothing to report it: uplink rejected: HTTP 409",
+            (
+                "WEB proxy: background task failed with nothing to report it: "
+                "uplink rejected: HTTP 409"
+            ),
         ),
     ]
 
