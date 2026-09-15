@@ -278,6 +278,7 @@ def pyrogram_api():
             send_checklist
             delete_messages
             get_available_effects
+            get_message
             get_messages
             get_scheduled_messages
             get_stickers
