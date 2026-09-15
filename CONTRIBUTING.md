@@ -49,12 +49,11 @@ make test-unit     # the offline suite, no relay or session needed
 formatting is not something review has to raise. The line length is 100; `pyproject.toml` carries
 the reasoning next to it.
 
-The formatter is not the limit, though: it only asks whether a file matches its own output, which
-a literal already alone on its line always does. What holds the 100 columns is
-`tests/guards/test_line_length.py`, which reports a line running past them when the 101st column
-is code. A docstring or a comment sitting there is left alone, and a code line nothing can shorten
-is recorded in that guard, keyed by its own text, with the reason it stands. Its docstring carries
-why neither the formatter nor `E501` is the mechanism.
+That 100 is a target for the formatter, not a checked limit, so keep new code inside it by hand.
+The formatter only asks whether a file matches its own output, and a literal already alone on its
+line has no break point left, so an over-long string or f-string passes. `E501` is the rule that
+would measure the column, and it is deliberately not selected: it reports around 2260 lines, and
+all but a handful of them are docstrings copied from the Telegram API documentation.
 
 `make test` runs the full suite, including the integration tests. Those open real sockets and
 take every endpoint from a git-ignored `.env.test` file: a live MTProto or web proxy relay and a

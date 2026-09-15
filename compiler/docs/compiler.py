@@ -1364,13 +1364,10 @@ def pyrogram_api():
         for k, v in categories.items():
             name, *bound_methods = get_title_list(v)
 
-            fmt_keys.update(
-                {"{}_hlist".format(k): "\n    ".join(
-                    "- :meth:`~{}`".format(bm) for bm in bound_methods)})
+            fmt_keys.update({"{}_hlist".format(k): "\n    ".join("- :meth:`~{}`".format(bm) for bm in bound_methods)})
 
             fmt_keys.update(
-                {"{}_toctree".format(k): "\n    ".join(
-                    "{} <{}>".format(bm.split(".")[1], bm) for bm in bound_methods)})
+                {"{}_toctree".format(k): "\n    ".join("{} <{}>".format(bm.split(".")[1], bm) for bm in bound_methods)})
 
             # noinspection PyShadowingBuiltins
             for bm in bound_methods:
@@ -1457,8 +1454,7 @@ def pyrogram_api():
         for k, v in categories.items():
             name, *enums = get_title_list(v)
 
-            fmt_keys.update(
-                {"{}_hlist".format(k): "\n    ".join("{}".format(enum) for enum in enums)})
+            fmt_keys.update({"{}_hlist".format(k): "\n    ".join("{}".format(enum) for enum in enums)})
 
             fmt_keys.update(
                 {"{}_toctree".format(k): "\n    ".join("{}".format(enum) for enum in enums)})
