@@ -29,6 +29,20 @@ from pyrogram.methods import Methods
 from pyrogram.methods.utilities import idle as idle_module, compose as compose_module
 
 
+def _bridge_loop(args: tuple[Any, ...]) -> asyncio.AbstractEventLoop:
+    """The loop the object being called runs on, or the one kept for callers that have none."""
+    # `Client._loop` and not `Client.loop`: the property builds a loop when it finds none, so
+    #  whichever thread reads it first would pin the client to a loop nobody ever runs.
+    owner = args[0] if args else None
+    client = getattr(owner, "_client", owner)
+    loop = getattr(client, "_loop", None)
+
+    if loop is not None:
+        return loop
+
+    return utils.get_event_loop()
+
+
 def async_to_sync(obj, name):
     function = getattr(obj, name)
 
@@ -56,12 +70,24 @@ def async_to_sync(obj, name):
 
     @functools.wraps(function)
     def async_to_sync_wrap(*args, **kwargs):
-        coroutine = function(*args, **kwargs)
-
         # Both loops are resolved here rather than in `async_to_sync`: `wrap()` below runs
-        #  during `import pyrogram`, when there is no loop to resolve them against yet.
-        target_loop = utils.get_event_loop()
+        #  during `import pyrogram`, when there is no client and no loop to ask yet.
+        target_loop = _bridge_loop(args)
         caller_loop = utils.get_running_loop()
+
+        # Nothing drives the target loop, so whatever is sent to it below would wait forever.
+        if (
+            caller_loop is not None
+            and caller_loop is not target_loop
+            and not target_loop.is_running()
+        ):
+            msg = (
+                f"{function.__qualname__} belongs to an event loop that is not running, while the "
+                f"caller is inside another one. Call it from the loop the client was started on."
+            )
+            raise RuntimeError(msg)
+
+        coroutine = function(*args, **kwargs)
 
         # The caller is already on the loop the coroutine belongs to, so it awaits it itself.
         if caller_loop is target_loop:
