@@ -419,6 +419,7 @@ def pyrogram_api():
         users="""
         Users
             get_me
+            get_user
             get_users
             get_chat_photos
             get_chat_audios

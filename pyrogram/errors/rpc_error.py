@@ -103,7 +103,7 @@ class RPCError(Exception):
     ``None`` when the message carries no parameter, and on every unknown error.
 
     On an error the library raises itself rather than reading off the wire, the identifier the
-    call was made with: :meth:`~pyrogram.Client.get_users` raises ``PeerIdInvalid(value=42)``
+    call was made with: :meth:`~pyrogram.Client.get_user` raises ``PeerIdInvalid(value=42)``
     for an id that belongs to no user, and ``42`` is what names it here.
     """
 
