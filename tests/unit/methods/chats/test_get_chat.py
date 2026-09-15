@@ -26,11 +26,12 @@ import pytest
 from pyrogram import raw
 from pyrogram.errors import PeerIdInvalid
 from pyrogram.methods.chats.get_chat import GetChat
+from pyrogram.methods.chats.get_chats import GetChats
 
 _CHANNEL_ID: Final = 42
 
 
-class FakeClient(GetChat):
+class FakeClient(GetChat, GetChats):
     """A client whose channels.GetChannels answers with the given chats, sliced."""
 
     INVITE_LINK_RE = re.compile(

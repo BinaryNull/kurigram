@@ -77,36 +77,24 @@ class GetChat:
             if isinstance(r.chat, raw.types.Channel):
                 chat_id = utils.get_channel_id(r.chat.id)
 
+        if not force_full:
+            chats = await self.get_chats([chat_id])
+
+            # `get_chats()` leaves out an identifier the server answered an empty peer for, which
+            #  is what a chat this account can no longer see comes back as. The caller asked for
+            #  one chat, so there is nothing to hand back and nothing it could do with the gap.
+            if not chats:
+                raise PeerIdInvalid(value=chat_id)
+
+            return chats[0]
+
         peer = await self.resolve_peer(chat_id)
 
-        if force_full:
-            if isinstance(peer, raw.types.InputPeerChannel):
-                r = await self.invoke(raw.functions.channels.GetFullChannel(channel=peer))
-            elif isinstance(peer, (raw.types.InputPeerUser, raw.types.InputPeerSelf)):
-                r = await self.invoke(raw.functions.users.GetFullUser(id=peer))
-            else:
-                r = await self.invoke(raw.functions.messages.GetFullChat(chat_id=peer.chat_id))
-
-            return await types.Chat._parse_full(self, r)
-
         if isinstance(peer, raw.types.InputPeerChannel):
-            r = await self.invoke(raw.functions.channels.GetChannels(id=[peer]))
+            r = await self.invoke(raw.functions.channels.GetFullChannel(channel=peer))
         elif isinstance(peer, (raw.types.InputPeerUser, raw.types.InputPeerSelf)):
-            r = await self.invoke(raw.functions.users.GetUsers(id=[peer]))
+            r = await self.invoke(raw.functions.users.GetFullUser(id=peer))
         else:
-            r = await self.invoke(raw.functions.messages.GetChats(id=[peer.chat_id]))
+            r = await self.invoke(raw.functions.messages.GetFullChat(chat_id=peer.chat_id))
 
-        chat = await types.Chat._parse_chat(
-            self,
-            r.chats[0]
-            if isinstance(r, (raw.types.messages.Chats, raw.types.messages.ChatsSlice))
-            else r[0],
-        )
-
-        # `Chat._parse_chat()` gives `None` back for a `chatEmpty`, which is what the server
-        #  answers for a chat this account can no longer see. The caller asked for one chat, so
-        #  there is nothing to hand back and nothing it could do with the `None` but crash later.
-        if chat is None:
-            raise PeerIdInvalid(value=chat_id)
-
-        return chat
+        return await types.Chat._parse_full(self, r)

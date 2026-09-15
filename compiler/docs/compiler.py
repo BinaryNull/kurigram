@@ -358,6 +358,7 @@ def pyrogram_api():
             unpin_forum_topic
             unpin_all_chat_messages
             get_chat
+            get_chats
             get_chat_member
             get_chat_members
             get_chat_members_count
