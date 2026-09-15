@@ -217,7 +217,7 @@ class CallbackQuery(Object, Update):
         parse_mode: enums.ParseMode | None = None,
         link_preview_options: types.LinkPreviewOptions | None = None,
         rich_message: types.InputRichMessage | None = None,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
         disable_web_page_preview: bool | None = None,
     ) -> types.Message | bool:
         """Edit the text of messages attached to callback queries.
@@ -242,6 +242,7 @@ class CallbackQuery(Object, Update):
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             :obj:`~pyrogram.types.Message` | ``bool``: On success, if the edited message was sent by the bot, the edited
@@ -280,7 +281,7 @@ class CallbackQuery(Object, Update):
         self,
         caption: str,
         parse_mode: enums.ParseMode | None = None,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> types.Message | bool:
         """Edit the caption of media messages attached to callback queries.
 
@@ -296,6 +297,7 @@ class CallbackQuery(Object, Update):
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             :obj:`~pyrogram.types.Message` | ``bool``: On success, if the edited message was sent by the bot, the edited
@@ -307,7 +309,9 @@ class CallbackQuery(Object, Update):
         return await self.edit_message_text(caption, parse_mode, reply_markup=reply_markup)
 
     async def edit_message_media(
-        self, media: types.InputMedia, reply_markup: types.InlineKeyboardMarkup | None = None
+        self,
+        media: types.InputMedia,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> types.Message | bool:
         """Edit animation, audio, document, photo or video messages attached to callback queries.
 
@@ -319,6 +323,7 @@ class CallbackQuery(Object, Update):
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             :obj:`~pyrogram.types.Message` | ``bool``: On success, if the edited message was sent by the bot, the edited
@@ -340,7 +345,8 @@ class CallbackQuery(Object, Update):
             )
 
     async def edit_message_reply_markup(
-        self, reply_markup: types.InlineKeyboardMarkup | None = None
+        self,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> types.Message | bool:
         """Edit only the reply markup of messages attached to callback queries.
 
@@ -349,6 +355,7 @@ class CallbackQuery(Object, Update):
         Parameters:
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             :obj:`~pyrogram.types.Message` | ``bool``: On success, if the edited message was sent by the bot, the edited

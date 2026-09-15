@@ -35,7 +35,7 @@ class EditInlineText:
         link_preview_options: types.LinkPreviewOptions | None = None,
         entities: list[types.MessageEntity] | None = None,
         rich_message: types.InputRichMessage | None = None,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
         disable_web_page_preview: bool | None = None,
     ) -> bool:
         """Edit the text of inline messages.
@@ -66,6 +66,7 @@ class EditInlineText:
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             ``bool``: On success, True is returned.
@@ -125,7 +126,7 @@ class EditInlineText:
             raw.functions.messages.EditInlineBotMessage(
                 id=unpacked,
                 no_webpage=getattr(link_preview_options, "is_disabled", None) or None,
-                reply_markup=await reply_markup.write(self) if reply_markup else None,
+                reply_markup=await utils.write_edit_reply_markup(self, reply_markup=reply_markup),
                 message=message,
                 entities=_entities,
                 rich_message=input_rich_message,

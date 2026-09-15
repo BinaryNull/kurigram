@@ -33,7 +33,7 @@ class EditEphemeralMessageText:
         entities: list[types.MessageEntity] | None = None,
         rich_message: types.InputRichMessage | None = None,
         link_preview_options: types.LinkPreviewOptions | None = None,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> types.Message | None:
         """Use this method to edit an ephemeral text message.
         Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline.
@@ -68,6 +68,7 @@ class EditEphemeralMessageText:
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             :obj:`~pyrogram.types.Message` | ``None``: On success, the edited message is returned,
@@ -91,7 +92,7 @@ class EditEphemeralMessageText:
                 receiver_id=await self.resolve_peer(receiver_user_id),
                 id=ephemeral_message_id,
                 invert_media=getattr(link_preview_options, "show_above_text", None),
-                reply_markup=await reply_markup.write(self) if reply_markup else None,
+                reply_markup=await utils.write_edit_reply_markup(self, reply_markup=reply_markup),
                 message=message,
                 rich_message=await rich_message.write(
                     client=self,

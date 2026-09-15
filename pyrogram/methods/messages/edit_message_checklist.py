@@ -29,7 +29,7 @@ class EditMessageChecklist:
         message_id: int,
         checklist: types.InputChecklist,
         business_connection_id: str | None = None,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> types.Message:
         """Use this method to edit a checklist.
 
@@ -52,6 +52,7 @@ class EditMessageChecklist:
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             :obj:`~pyrogram.types.Message`: On success, the edited message is returned.
@@ -90,7 +91,7 @@ class EditMessageChecklist:
                         others_can_complete=checklist.others_can_mark_tasks_as_done,
                     )
                 ),
-                reply_markup=await reply_markup.write(self) if reply_markup else None,
+                reply_markup=await utils.write_edit_reply_markup(self, reply_markup=reply_markup),
                 entities=entities,
             ),
             business_connection_id=business_connection_id,

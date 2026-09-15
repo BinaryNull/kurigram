@@ -28,7 +28,7 @@ class EditInlineReplyMarkup:
     async def edit_inline_reply_markup(
         self: pyrogram.Client,
         inline_message_id: str,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> bool:
         """Edit only the reply markup of inline messages sent via the bot (for inline bots).
 
@@ -40,6 +40,7 @@ class EditInlineReplyMarkup:
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             ``bool``: On success, True is returned.
@@ -64,7 +65,7 @@ class EditInlineReplyMarkup:
         return await session.invoke(
             raw.functions.messages.EditInlineBotMessage(
                 id=unpacked,
-                reply_markup=await reply_markup.write(self) if reply_markup else None,
+                reply_markup=await utils.write_edit_reply_markup(self, reply_markup=reply_markup),
             ),
             sleep_threshold=self.sleep_threshold,
         )

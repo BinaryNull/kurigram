@@ -234,3 +234,24 @@ async def get_reply_to(
         )
 
     return None
+
+
+async def write_edit_reply_markup(
+    client: pyrogram.Client,
+    *,
+    reply_markup: types.InlineKeyboardMarkup | None | type[object],
+) -> raw.base.ReplyMarkup | None:
+    # `object` (the class, not an instance) is the sentinel for "not specified",
+    #  distinct from None, which means "remove the reply markup": so the parameter
+    #  type has to include it alongside the real markup types.
+    if reply_markup is object:
+        return None
+
+    # Every edit request declares `reply_markup:flags.2?ReplyMarkup`, so an omitted field
+    #  leaves the existing keyboard in place; `replyInlineMarkup` with an empty `rows` vector
+    #  is what takes it off. `compiler/api/source/main_api.tl:729` for the vector, and
+    #  `:2551`, `:2552`, `:3121` for the three requests.
+    if reply_markup is None:
+        return raw.types.ReplyInlineMarkup(rows=[])
+
+    return await reply_markup.write(client)

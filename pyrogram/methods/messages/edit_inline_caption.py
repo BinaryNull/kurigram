@@ -28,7 +28,7 @@ class EditInlineCaption:
         inline_message_id: str,
         caption: str,
         parse_mode: enums.ParseMode | None = None,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> bool:
         """Edit the caption of inline media messages.
 
@@ -47,6 +47,7 @@ class EditInlineCaption:
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             ``bool``: On success, True is returned.

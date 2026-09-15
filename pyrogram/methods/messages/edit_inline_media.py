@@ -40,7 +40,7 @@ class EditInlineMedia:
         self: pyrogram.Client,
         inline_message_id: str,
         media: types.InputMedia,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> bool:
         """Edit inline animation, audio, document, photo or video messages, or to add media to text messages.
 
@@ -59,6 +59,7 @@ class EditInlineMedia:
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             ``bool``: On success, True is returned.
@@ -240,7 +241,10 @@ class EditInlineMedia:
                     raw.functions.messages.EditInlineBotMessage(
                         id=unpacked,
                         media=actual_media,
-                        reply_markup=await reply_markup.write(self) if reply_markup else None,
+                        reply_markup=await utils.write_edit_reply_markup(
+                            self,
+                            reply_markup=reply_markup,
+                        ),
                         **await utils.parse_text_entities(
                             self, caption, parse_mode, caption_entities
                         ),

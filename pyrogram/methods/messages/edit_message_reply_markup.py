@@ -32,7 +32,7 @@ class EditMessageReplyMarkup:
         chat_id: int | str,
         message_id: int,
         schedule_date: datetime | None = None,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> types.Message:
         """Edit only the reply markup of messages sent by the bot.
 
@@ -52,6 +52,7 @@ class EditMessageReplyMarkup:
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             :obj:`~pyrogram.types.Message`: On success, the edited message is returned.
@@ -72,7 +73,7 @@ class EditMessageReplyMarkup:
                 peer=await self.resolve_peer(chat_id),
                 id=message_id,
                 schedule_date=utils.datetime_to_timestamp(schedule_date),
-                reply_markup=await reply_markup.write(self) if reply_markup else None,
+                reply_markup=await utils.write_edit_reply_markup(self, reply_markup=reply_markup),
             )
         )
 

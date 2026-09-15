@@ -37,7 +37,7 @@ class EditEphemeralMessageCaption:
         parse_mode: enums.ParseMode | None = None,
         caption_entities: list[types.MessageEntity] | None = None,
         show_caption_above_media: bool | None = None,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> types.Message | None:
         """Use this method to edit the caption of an ephemeral message.
         Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline.
@@ -70,6 +70,7 @@ class EditEphemeralMessageCaption:
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             :obj:`~pyrogram.types.Message` | ``None``: On success, the edited message is returned, otherwise, in case

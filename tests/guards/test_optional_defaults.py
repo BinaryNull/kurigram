@@ -25,6 +25,10 @@ from collections.abc import Iterator
 
 from tests.guards.name_resolution import REPOSITORY_ROOT, hand_written_files, is_generated
 
+_SENTINEL_REPLY_MARKUP: Final[str] = (
+    "`object` is the not-specified sentinel, so `None` is free to mean remove the markup."
+)
+
 # A parameter annotated `Optional` and defaulting to something else says two things at once:
 #  the caller may pass `None`, and the caller who passes nothing does not get `None`. Almost
 #  always only the second is true, and the body then never handles the `None` it advertises.
@@ -36,13 +40,39 @@ _EXEMPTIONS: Final[dict[tuple[str, str], str]] = {
         "prefixes",
     ): "`None` matches commands written with no prefix at all, `'/'` is the ordinary one.",
     (
-        "pyrogram/methods/messages/copy_message.py",
+        "pyrogram/methods/bots/edit_ephemeral_message_caption.py",
         "reply_markup",
-    ): "`object` is the not-specified sentinel, so `None` is free to mean remove the markup.",
+    ): _SENTINEL_REPLY_MARKUP,
     (
-        "pyrogram/types/messages_and_media/message.py",
+        "pyrogram/methods/bots/edit_ephemeral_message_media.py",
         "reply_markup",
-    ): "`object` is the not-specified sentinel, so `None` is free to mean remove the markup.",
+    ): _SENTINEL_REPLY_MARKUP,
+    (
+        "pyrogram/methods/bots/edit_ephemeral_message_reply_markup.py",
+        "reply_markup",
+    ): _SENTINEL_REPLY_MARKUP,
+    (
+        "pyrogram/methods/bots/edit_ephemeral_message_text.py",
+        "reply_markup",
+    ): _SENTINEL_REPLY_MARKUP,
+    ("pyrogram/methods/messages/copy_message.py", "reply_markup"): _SENTINEL_REPLY_MARKUP,
+    ("pyrogram/methods/messages/edit_inline_caption.py", "reply_markup"): _SENTINEL_REPLY_MARKUP,
+    ("pyrogram/methods/messages/edit_inline_media.py", "reply_markup"): _SENTINEL_REPLY_MARKUP,
+    (
+        "pyrogram/methods/messages/edit_inline_reply_markup.py",
+        "reply_markup",
+    ): _SENTINEL_REPLY_MARKUP,
+    ("pyrogram/methods/messages/edit_inline_text.py", "reply_markup"): _SENTINEL_REPLY_MARKUP,
+    ("pyrogram/methods/messages/edit_message_caption.py", "reply_markup"): _SENTINEL_REPLY_MARKUP,
+    ("pyrogram/methods/messages/edit_message_checklist.py", "reply_markup"): _SENTINEL_REPLY_MARKUP,
+    ("pyrogram/methods/messages/edit_message_media.py", "reply_markup"): _SENTINEL_REPLY_MARKUP,
+    (
+        "pyrogram/methods/messages/edit_message_reply_markup.py",
+        "reply_markup",
+    ): _SENTINEL_REPLY_MARKUP,
+    ("pyrogram/methods/messages/edit_message_text.py", "reply_markup"): _SENTINEL_REPLY_MARKUP,
+    ("pyrogram/types/bots_and_keyboards/callback_query.py", "reply_markup"): _SENTINEL_REPLY_MARKUP,
+    ("pyrogram/types/messages_and_media/message.py", "reply_markup"): _SENTINEL_REPLY_MARKUP,
 }
 
 
@@ -176,3 +206,47 @@ def test_the_sweep_reads_the_package_and_not_the_generated_tree() -> None:
 
 def test_a_module_outside_the_package_is_not_swept() -> None:
     assert pathlib.Path(__file__) not in set(hand_written_files())
+
+
+def edit_reply_markup_defaults() -> list[tuple[str, str, ast.expr]]:
+    found: list[tuple[str, str, ast.expr]] = []
+
+    for path in hand_written_files():
+        relative = path.relative_to(REPOSITORY_ROOT).as_posix()
+        tree = ast.parse(path.read_text(), filename=relative)
+
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+
+            if not node.name.startswith("edit"):
+                continue
+
+            found.extend(
+                (relative, node.name, default)
+                for parameter, default in parameters_with_defaults(node)
+                if parameter.arg == "reply_markup"
+            )
+
+    return found
+
+
+# On an edit, `None` means remove the keyboard, so an `edit_*` that defaults `reply_markup` to
+#  it strips one from every message it touches. Only the `object` sentinel can mean not
+#  specified: `pyrogram/utils/messages.py`, `write_edit_reply_markup`.
+def test_every_edit_method_defaults_reply_markup_to_the_sentinel() -> None:
+    offenders = [
+        f"{relative}: {function}"
+        for relative, function, default in edit_reply_markup_defaults()
+        if not (isinstance(default, ast.Name) and default.id == "object")
+    ]
+
+    assert offenders == []
+
+
+def test_the_sweep_finds_the_edit_methods_it_guards() -> None:
+    functions = {function for _, function, _ in edit_reply_markup_defaults()}
+
+    assert {"edit_message_reply_markup", "edit_inline_text", "edit_ephemeral_message_media"} <= (
+        functions
+    )

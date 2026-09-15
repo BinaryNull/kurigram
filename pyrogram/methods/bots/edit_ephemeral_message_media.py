@@ -29,7 +29,7 @@ class EditEphemeralMessageMedia:
         receiver_user_id: int | str,
         ephemeral_message_id: int,
         media: types.InputMedia,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> types.Message | None:
         """Use this method to edit the media of an ephemeral message.
         Note that it is not guaranteed that the user will receive the message edit event, especially if they are offline.
@@ -51,6 +51,7 @@ class EditEphemeralMessageMedia:
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
             file_name (``str``, *optional*):
                 File name of the media to be sent. Not applicable to photos.
@@ -106,7 +107,7 @@ class EditEphemeralMessageMedia:
                 receiver_id=await self.resolve_peer(receiver_user_id),
                 id=ephemeral_message_id,
                 media=await media.write(client=self),
-                reply_markup=await reply_markup.write(self) if reply_markup else None,
+                reply_markup=await utils.write_edit_reply_markup(self, reply_markup=reply_markup),
                 message=message,
                 entities=entities,
             )

@@ -8645,7 +8645,7 @@ class Message(Object, Update):
         parse_mode: enums.ParseMode | None = None,
         entities: list[types.MessageEntity] | None = None,
         link_preview_options: types.LinkPreviewOptions | None = None,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
         rich_message: types.InputRichMessage | None = None,
     ) -> Message:
         """Shortcut for method :obj:`~pyrogram.Client.edit_message_text` will automatically fill method attributes:
@@ -8676,6 +8676,7 @@ class Message(Object, Update):
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
             rich_message (:obj:`~pyrogram.types.InputRichMessage`, *optional*):
                 New rich content of the message.
@@ -8706,7 +8707,7 @@ class Message(Object, Update):
         caption: str,
         parse_mode: enums.ParseMode | None = None,
         caption_entities: list[types.MessageEntity] | None = None,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
         show_caption_above_media: bool | None = None,
     ) -> Message:
         """Shortcut for method :obj:`~pyrogram.Client.edit_message_caption` will automatically fill method attributes:
@@ -8732,6 +8733,7 @@ class Message(Object, Update):
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             On success, the edited :obj:`~pyrogram.types.Message` is returned.
@@ -8751,7 +8753,9 @@ class Message(Object, Update):
         )
 
     async def edit_media(
-        self, media: types.InputMedia, reply_markup: types.InlineKeyboardMarkup | None = None
+        self,
+        media: types.InputMedia,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> Message:
         """Shortcut for method :obj:`~pyrogram.Client.edit_message_media` will automatically fill method attributes:
 
@@ -8770,6 +8774,7 @@ class Message(Object, Update):
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             On success, the edited :obj:`~pyrogram.types.Message` is returned.
@@ -8788,7 +8793,7 @@ class Message(Object, Update):
     async def edit_checklist(
         self,
         checklist: types.InputChecklist,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> Message:
         """Shortcut for method :obj:`~pyrogram.Client.edit_message_checklist` will automatically fill method attributes:
 
@@ -8802,6 +8807,7 @@ class Message(Object, Update):
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             On success, the edited :obj:`~pyrogram.types.Message` is returned.
@@ -8818,7 +8824,8 @@ class Message(Object, Update):
         )
 
     async def edit_reply_markup(
-        self, reply_markup: types.InlineKeyboardMarkup | None = None
+        self,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> Message:
         """Shortcut for method :obj:`~pyrogram.Client.edit_message_reply_markup` will automatically fill method attributes:
 
@@ -8828,6 +8835,7 @@ class Message(Object, Update):
         Parameters:
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             On success, if edited message is sent by the bot, the edited

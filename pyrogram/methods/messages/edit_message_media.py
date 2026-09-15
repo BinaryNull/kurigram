@@ -33,7 +33,7 @@ class EditMessageMedia:
         show_caption_above_media: bool | None = None,
         schedule_date: datetime | None = None,
         business_connection_id: str | None = None,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> types.Message:
         """Edit animation, audio, document, photo or video messages, or to add media to text messages.
 
@@ -69,6 +69,7 @@ class EditMessageMedia:
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
             file_name (``str``, *optional*):
                 File name of the media to be sent. Not applicable to photos.
@@ -124,7 +125,7 @@ class EditMessageMedia:
                 invert_media=show_caption_above_media,
                 media=await media.write(client=self),
                 schedule_date=utils.datetime_to_timestamp(schedule_date),
-                reply_markup=await reply_markup.write(self) if reply_markup else None,
+                reply_markup=await utils.write_edit_reply_markup(self, reply_markup=reply_markup),
                 message=message,
                 entities=entities,
             ),

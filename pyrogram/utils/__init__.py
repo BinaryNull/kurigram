@@ -37,7 +37,12 @@ from .gifts import get_input_stargift
 from .inline import pack_inline_message_id, unpack_inline_message_id
 from .json_values import jsonvalue_to_obj, obj_to_jsonvalue
 from .loop import get_event_loop, get_running_loop
-from .messages import get_reply_to, parse_deleted_messages, parse_messages
+from .messages import (
+    get_reply_to,
+    parse_deleted_messages,
+    parse_messages,
+    write_edit_reply_markup,
+)
 from .peers import (
     MAX_CHANNEL_ID,
     MAX_CHAT_ID,
@@ -96,6 +101,7 @@ __all__ = [
     "timestamp_to_datetime",
     "to_nano",
     "unpack_inline_message_id",
+    "write_edit_reply_markup",
     "xor",
     "zero_datetime",
 ]

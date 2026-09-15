@@ -35,7 +35,7 @@ class EditMessageCaption:
         schedule_date: datetime | None = None,
         business_connection_id: str | None = None,
         show_caption_above_media: bool | None = None,
-        reply_markup: types.InlineKeyboardMarkup | None = None,
+        reply_markup: types.InlineKeyboardMarkup | None | type[object] = object,
     ) -> types.Message:
         """Edit the caption of media messages.
 
@@ -72,6 +72,7 @@ class EditMessageCaption:
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
+                Pass None to remove the existing reply markup.
 
         Returns:
             :obj:`~pyrogram.types.Message`: On success, the edited message is returned.
