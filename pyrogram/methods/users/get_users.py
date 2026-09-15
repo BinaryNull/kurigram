@@ -25,6 +25,7 @@ from collections.abc import Iterable
 import pyrogram
 from pyrogram import raw
 from pyrogram import types
+from pyrogram.errors import PeerIdInvalid
 
 
 class GetUsers:
@@ -33,7 +34,7 @@ class GetUsers:
     @overload
     async def get_users(  # type: ignore[overload-overlap]
         self: pyrogram.Client, user_ids: int | str
-    ) -> types.User | None: ...
+    ) -> types.User: ...
 
     @overload
     async def get_users(
@@ -42,7 +43,7 @@ class GetUsers:
 
     async def get_users(
         self: pyrogram.Client, user_ids: int | str | Iterable[int | str]
-    ) -> types.User | list[types.User] | None:
+    ) -> types.User | list[types.User]:
         """Get information about a user.
         You can retrieve up to 200 users at once.
 
@@ -54,10 +55,14 @@ class GetUsers:
                 For a contact that exists in your Telegram address book you can use his phone number (str).
 
         Returns:
-            :obj:`~pyrogram.types.User` | List of :obj:`~pyrogram.types.User` | ``None``: In case *user_ids* was not a
-            list, a single user is returned, otherwise a list of users is returned. Telegram answers with an empty
-            list for an identifier that belongs to no user (a channel, a chat, or a peer this account cannot see),
-            in which case None is returned for a single identifier and the missing users are absent from the list.
+            :obj:`~pyrogram.types.User` | List of :obj:`~pyrogram.types.User`: In case *user_ids* was not a
+            list, a single user is returned, otherwise a list of users is returned. Telegram answers with
+            nothing for an identifier that belongs to no user (a channel, a chat, a deleted account, or a
+            peer this account cannot see): the list leaves such an identifier out, and a single one raises.
+
+        Raises:
+            PeerIdInvalid: In case *user_ids* is a single identifier that belongs to no user. The
+                identifier is on the error's ``value``.
 
         Example:
             .. code-block:: python
@@ -70,14 +75,26 @@ class GetUsers:
         """
 
         is_iterable = not isinstance(user_ids, (int, str))
-        user_ids = list(user_ids) if is_iterable else [user_ids]
-        user_ids = await asyncio.gather(*[self.resolve_peer(i) for i in user_ids])
+        identifiers = list(user_ids) if is_iterable else [user_ids]
+        peers = await asyncio.gather(*[self.resolve_peer(identifier) for identifier in identifiers])
 
-        r = await self.invoke(raw.functions.users.GetUsers(id=user_ids))
+        r = await self.invoke(raw.functions.users.GetUsers(id=peers))
 
         users = types.List()
 
-        for i in r:
-            users.append(await types.User._parse(self, i))
+        for raw_user in r:
+            user = await types.User._parse(self, raw_user)
 
-        return users if is_iterable else users[0] if users else None
+            # `User._parse()` gives `None` back for a `userEmpty`, which is what an identifier
+            #  that belongs to no user comes back as. A list that holds it holds a hole nobody
+            #  can act on, so the entry is left out and the single-identifier form raises below.
+            if user is not None:
+                users.append(user)
+
+        if is_iterable:
+            return users
+
+        if not users:
+            raise PeerIdInvalid(value=user_ids)
+
+        return users[0]
