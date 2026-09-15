@@ -1,37 +1,53 @@
 <p align="center">
     <a href="https://github.com/kurigram-org/kurigram">
-        <img src="https://raw.githubusercontent.com/kurigram-org/artwork/master/kurigram_logo.png" alt="Kurigram" width="128">
+        <img
+            src="https://raw.githubusercontent.com/kurigram-org/artwork/master/kurigram_logo_github.png"
+            alt="Kurigram"
+            height="128"
+        />
     </a>
-    <br>
+    <br />
     <b>Telegram MTProto API Framework for Python</b>
-    <br>
-    <a href="https://kurigram.icu">
-        Homepage
-    </a>
+    <br />
+    <a href="https://kurigram.icu"> Homepage </a>
     •
-    <a href="https://docs.kurigram.icu">
-        Documentation
-    </a>
+    <a href="https://docs.kurigram.icu"> Documentation </a>
     •
-    <a href="https://t.me/kurigram_news">
-        News
-    </a>
+    <a href="https://t.me/kurigram_news"> News </a>
     •
-    <a href="https://t.me/kurigram_chat">
-        Chat
-    </a>
-    <br/>
-    <br/>
+    <a href="https://t.me/kurigram_chat"> Chat </a>
+    <br />
+    <br />
+    <img
+        src="https://img.shields.io/github/actions/workflow/status/kurigram-org/kurigram/python.yml?branch=dev&logo=github&label=CI"
+        alt="CI Tests"
+    />
     <a href="https://pypi.python.org/pypi/kurigram">
-        <img src="https://img.shields.io/pypi/v/kurigram.svg?logo=pypi&logoColor=white" alt="PyPI package version">
-    </a>
-    <a href="https://pypi.python.org/pypi/kurigram">
-        <img src="https://img.shields.io/pypi/l/kurigram.svg" alt="License">
+        <img
+            src="https://img.shields.io/pypi/v/kurigram.svg?logo=pypi&logoColor=white&color=%23f55b25"
+            alt="PyPI package version"
+        />
     </a>
     <a href="https://pypi.python.org/pypi/kurigram">
-        <img src="https://img.shields.io/pypi/pyversions/kurigram.svg" alt="Python versions">
+        <img
+            src="https://static.pepy.tech/badge/kurigram/month"
+            alt="Downloads"
+        />
+    </a>
+    <a href="https://pypi.python.org/pypi/kurigram">
+        <img
+            src="https://img.shields.io/pypi/pyversions/kurigram.svg?logo=python&logoColor=white&color=%23fd5216"
+            alt="Python versions"
+        />
+    </a>
+    <a href="https://github.com/kurigram-org/kurigram/blob/dev/COPYING">
+        <img
+            src="https://img.shields.io/github/license/kurigram-org/kurigram.svg?color=%23fd5216"
+            alt="License"
+        />
     </a>
 </p>
+
 
 ## Kurigram
 
