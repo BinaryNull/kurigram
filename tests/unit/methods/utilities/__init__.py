@@ -15,17 +15,3 @@
 #
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
-
-from __future__ import annotations as _annotations
-
-import asyncio
-import functools
-from concurrent.futures.thread import ThreadPoolExecutor
-from getpass import getpass
-
-
-async def ainput(prompt: str = "", *, hide: bool = False) -> str:
-    """Just like the built-in input, but async"""
-    with ThreadPoolExecutor(1) as executor:
-        func = functools.partial(getpass if hide else input, prompt)
-        return await asyncio.get_running_loop().run_in_executor(executor, func)
