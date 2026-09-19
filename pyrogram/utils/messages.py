@@ -226,7 +226,7 @@ async def get_reply_to(
             return raw.types.InputReplyToEphemeralMessage(id=reply_parameters.ephemeral_message_id)
 
     if message_thread_id:
-        return raw.types.InputReplyToMessage(reply_to_msg_id=message_thread_id)
+        return raw.types.InputReplyToMessage(reply_to_msg_id=0,top_msg_id=message_thread_id)
 
     if direct_messages_topic_id:
         return raw.types.InputReplyToMonoForum(
